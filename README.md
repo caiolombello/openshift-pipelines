@@ -1,5 +1,12 @@
 # OpenShift Pipelines
 
+## Pré-Requisitos
+
+- Openshift 4 cluster
+- [OpenShift Pipelines Operator](https://github.com/openshift/pipelines-tutorial#install-openshift-pipelines)
+- [OpenShift command-line interface (oc)](https://docs.openshift.com/container-platform/4.10/cli_reference/openshift_cli/getting-started-cli.html)
+- [Tekton CLI](https://github.com/tektoncd/cli#installing-tkn)
+
 ## Task
 
 As Tasks são os blocos de construção de uma pipeline e consistem em etapas executadas sequencialmente. É essencialmente uma função de entradas e saídas. Uma tarefa pode ser executada individualmente ou como parte do pipeline. 
@@ -460,3 +467,94 @@ spec:
         template:
             name: trigger-template
 ```
+
+## Autenticação Git
+
+Uma execução de pipeline ou task pode exigir várias autenticações para acessar diferentes repositórios Git. Anote cada secret com os domínios em que as Pipelines possam usar suas credenciais.
+
+Uma chave de anotação de credencial para secret do Git deve começar com tekton.dev/git-, e seu valor é a URL do host para o qual você deseja que as Pipelines usem essa credencial.
+
+1. No exemplo a seguir, as Pipelines usam um segredo de autenticação básica, que depende de um nome de usuário e senha, para acessar repositórios em github.com e gitlab.com.
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: basic-user-pass
+  annotations:
+    tekton.dev/git-0: github.com
+    tekton.dev/git-1: gitlab.com
+type: kubernetes.io/basic-auth
+stringData:
+  username: 
+  password: 
+```
+
+Você também pode usar uma secret ssh-auth (chave privada) para acessar um repositório Git.
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  annotations:
+    tekton.dev/git-0: https://github.com
+type: kubernetes.io/ssh-auth
+stringData:
+  ssh-privatekey: 
+```
+
+2. No arquivo serviceaccount.yaml, associe o segredo à conta de serviço apropriada.
+
+```yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: build-bot 
+secrets:
+  - name: basic-user-pass 
+```
+
+3. No arquivo run.yaml, associe a conta de serviço a uma execução de tarefa ou de pipeline.
+
+   - Associe a conta de serviço a uma execução de tarefa:
+
+    ```yaml
+    apiVersion: tekton.dev/v1beta1
+    kind: TaskRun
+    metadata:
+    name: build-push-task-run-2 
+    spec:
+    serviceAccountName: build-bot 
+    taskRef:
+        name: build-push 
+    ```
+
+    - Associe a conta de serviço a um recurso PipelineRun:
+
+    ```yaml
+    apiVersion: tekton.dev/v1beta1
+    kind: PipelineRun
+    metadata:
+    name: demo-pipeline 
+    namespace: default
+    spec:
+    serviceAccountName: build-bot 
+    pipelineRef:
+        name: demo-pipeline 
+    ```
+
+4. Apply the changes.
+
+```shell
+oc apply --filename secret.yaml,serviceaccount.yaml,run.yaml
+```
+
+## Referências
+
+https://tekton.dev/docs/
+
+https://docs.openshift.com/container-platform/4.10/cicd/
+
+https://github.com/openshift/pipelines-tutorial
+
+https://youtu.be/adFl-4A4fX4
