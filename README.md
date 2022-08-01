@@ -549,6 +549,8 @@ secrets:
 oc apply --filename secret.yaml,serviceaccount.yaml,run.yaml
 ```
 
+## [Deploy de uma aplicação de exemplo](https://github.com/caiolombello/openshift-pipelines/blob/main/EXAMPLE.md) 
+
 ## Referências
 
 https://tekton.dev/docs/
