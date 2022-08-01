@@ -163,7 +163,7 @@ spec:
               storage: 16Mi
 ```
 
-### Finally tasks
+#### Finally tasks
 
 As finally tasks são o conjunto final de tarefas especificadas usando o campo finally no arquivo YAML da pipeline. Uma tarefa finally sempre executa as tarefas na pipeline, independentemente das execuções da pipeline serem executadas com êxito. As finally tasks são executadas em paralelo depois que todas as tarefas da pipeline são executadas, antes que a pipeline correspondente seja encerrada.
 
