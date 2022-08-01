@@ -450,7 +450,7 @@ spec:
 
 ### Event Listener
 
-O Event Listenerconecta o trigger binding ao trigger template.
+O Event Listener conecta o trigger binding ao trigger template.
 
 É um objeto do Kubernetes que ouve eventos e especifica triggers que tem trigger bindings e trigger templates.
 
