@@ -2,6 +2,7 @@ apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
   name: ia-analise-de-precos-run
+  namespace: ia-analise-de-precos
 spec:
   serviceAccountName: git-user
   pipelineRef:
