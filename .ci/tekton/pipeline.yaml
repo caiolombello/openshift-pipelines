@@ -1,0 +1,65 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: ia-analise-de-precos-ci
+  namespace: ia-analise-de-precos
+spec:
+  workspaces:
+  - name: shared-workspace
+  params:
+  - name: deployment-name
+    default: $(context.pipelineRun.namespace)
+    description: name of the deployment to be patched
+  - name: git-url
+    description: url of the git repo for the code of deployment
+  - name: git-revision
+    default: main
+    description: revision to be used from repo of the code for deployment
+  - name: DOCKERFILE
+    default: ./Dockerfile
+    description: path to Dockerfile
+  - name: IMAGE
+    default: image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/$(context.pipelineRun.namespace):latest
+    description: image to be build from the code
+  tasks:
+  - name: fetch-repository
+    taskRef:
+      name: git-clone
+      kind: ClusterTask
+    workspaces:
+    - name: output
+      workspace: shared-workspace
+    params:
+    - name: url
+      value: $(params.git-url)
+    - name: subdirectory
+      value: ""
+    - name: deleteExisting
+      value: "true"
+    - name: revision
+      value: $(params.git-revision)
+  - name: package
+    taskRef:
+      name: maven
+      kind: ClusterTask
+    workspaces: 
+      - name: maven-settings
+        workspace: shared-workspace
+      - name: source
+        workspace: shared-workspace
+    runAfter: 
+      - fetch-repository
+  - name: build-image
+    taskRef:
+      name: buildah
+      kind: ClusterTask
+    params:
+    - name: DOCKERFILE
+      value: $(params.DOCKERFILE)
+    - name: IMAGE
+      value: $(params.IMAGE)
+    workspaces:
+    - name: source
+      workspace: shared-workspace
+    runAfter:
+    - package

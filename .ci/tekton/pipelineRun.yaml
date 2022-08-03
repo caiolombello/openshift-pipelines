@@ -1,0 +1,21 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: ia-analise-de-precos-run
+spec:
+  serviceAccountName: git-user
+  pipelineRef:
+    name: ia-analise-de-precos-ci
+  params:
+  - name: git-url
+    value: https://gitlab.vertigo-devops.com/vertigobr/devops/bootcamps/docker/ia-analise-de-precos.git
+  workspaces:
+  - name: shared-workspace
+    volumeClaimTemplate:
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 500Mi
+
