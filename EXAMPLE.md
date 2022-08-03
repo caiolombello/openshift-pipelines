@@ -28,9 +28,6 @@ spec:
   workspaces: # Onde ficarão os artefatos gerados
   - name: shared-workspace  
   params:
-  - name: deployment-name
-    default: $(context.pipelineRun.namespace)
-    description: name of the deployment to be patched
   - name: git-url
     description: url of the git repo for the code of deployment
   - name: git-revision
@@ -122,7 +119,8 @@ oc apply -f secret.yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: git-user 
+  name: pipeline
+  namespace: ia-analise-de-precos
 secrets:
   - name: git-auth
 ```
@@ -144,12 +142,10 @@ metadata:
   name: ia-analise-de-precos-run
   namespace: ia-analise-de-precos
 spec:
-  serviceAccountName: git-user
+  serviceAccountName: pipeline
   pipelineRef:
     name: ia-analise-de-precos-ci
   params:
-  - name: deployment-name
-    value: ia-analise-de-precos-app
   - name: git-url
     value: https://gitlab.vertigo-devops.com/vertigobr/devops/bootcamps/docker/ia-analise-de-precos.git
   - name: git-revision
@@ -157,7 +153,7 @@ spec:
   - name: DOCKERFILE
     value: ./src/main/docker/Dockerfile.jvm
   - name: IMAGE
-    value: image-registry.openshift-image-registry.svc:5000/ia-analise-de-precos/ia-analise-de-precos-app:latest
+    value: image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/$(context.pipelineRun.name):latest
   workspaces:
   - name: shared-workspace
     volumeClaimTemplate:

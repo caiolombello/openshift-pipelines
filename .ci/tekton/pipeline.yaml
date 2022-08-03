@@ -7,9 +7,6 @@ spec:
   workspaces:
   - name: shared-workspace
   params:
-  - name: deployment-name
-    default: $(context.pipelineRun.namespace)
-    description: name of the deployment to be patched
   - name: git-url
     description: url of the git repo for the code of deployment
   - name: git-revision
@@ -19,7 +16,7 @@ spec:
     default: ./Dockerfile
     description: path to Dockerfile
   - name: IMAGE
-    default: image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/$(context.pipelineRun.namespace):latest
+    default: image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/$(context.pipelineRun.name):latest
     description: image to be build from the code
   tasks:
   - name: fetch-repository
