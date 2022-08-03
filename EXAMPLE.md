@@ -25,7 +25,7 @@ metadata:
   name: ia-analise-de-precos-ci
   namespace: ia-analise-de-precos
 spec:
-  workspaces: # Onde ficaram os artefatos gerados
+  workspaces: # Onde ficarão os artefatos gerados
   - name: shared-workspace  
   params:
   - name: deployment-name
@@ -142,13 +142,22 @@ apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
   name: ia-analise-de-precos-run
+  namespace: ia-analise-de-precos
 spec:
   serviceAccountName: git-user
   pipelineRef:
     name: ia-analise-de-precos-ci
   params:
+  - name: deployment-name
+    value: ia-analise-de-precos-app
   - name: git-url
     value: https://gitlab.vertigo-devops.com/vertigobr/devops/bootcamps/docker/ia-analise-de-precos.git
+  - name: git-revision
+    value: main
+  - name: DOCKERFILE
+    value: ./src/main/docker/Dockerfile.jvm
+  - name: IMAGE
+    value: image-registry.openshift-image-registry.svc:5000/ia-analise-de-precos/ia-analise-de-precos-app:latest
   workspaces:
   - name: shared-workspace
     volumeClaimTemplate:
