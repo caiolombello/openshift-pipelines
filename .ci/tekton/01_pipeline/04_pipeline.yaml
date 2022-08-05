@@ -7,6 +7,9 @@ spec:
   workspaces:
   - name: shared-workspace
   params:
+  - name: deployment-name
+    type: string
+    description: name of the deployment to be patched
   - name: git-url
     description: url of the git repo for the code of deployment
   - name: git-revision
@@ -16,7 +19,7 @@ spec:
     default: ./Dockerfile
     description: path to Dockerfile
   - name: IMAGE
-    default: image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/$(context.pipelineRun.name):latest
+    default: image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/$(params.deployment-name):latest
     description: image to be build from the code
   tasks:
   - name: fetch-repository
@@ -60,3 +63,28 @@ spec:
       workspace: shared-workspace
     runAfter:
     - package
+  - name: deploy
+    taskRef:
+      name: openshift-client
+    params:
+    - name: ARGS
+      value:
+        - "new-app"
+        - "$(context.pipelineRun.namespace)/$(params.deployment-name)"
+    runAfter:
+    - build-image
+  finally:
+    - name: update-deployment
+      taskRef:
+        name: update-deployment
+      params:
+      - name: deployment
+        value: $(params.deployment-name)
+      - name: IMAGE
+        value: $(params.IMAGE)
+      when: 
+        - input: "$(tasks.deploy.status)"
+          operator: in 
+          values: ["Failed"]
+      
+

@@ -1,0 +1,8 @@
+apiVersion: triggers.tekton.dev/v1beta1
+kind: EventListener
+metadata:
+  name: ia-analise-de-precos
+spec:
+  serviceAccountName: pipeline
+  triggers:
+    - triggerRef: ia-analise-de-precos-trigger

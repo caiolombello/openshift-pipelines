@@ -8,6 +8,8 @@ spec:
   pipelineRef:
     name: ia-analise-de-precos-ci
   params:
+  - name: deployment-name
+    value: ia-analise-de-precos-app
   - name: git-url
     value: https://gitlab.vertigo-devops.com/vertigobr/devops/bootcamps/docker/ia-analise-de-precos.git
   - name: git-revision
