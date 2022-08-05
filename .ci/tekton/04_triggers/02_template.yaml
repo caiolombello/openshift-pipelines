@@ -20,16 +20,18 @@ spec:
     spec:
       serviceAccountName: pipeline
       pipelineRef:
-        name: build-and-deploy
+        name: ia-analise-de-precos-ci
       params:
-      - name: deployment-name
-        value: $(tt.params.git-repo-name)
-      - name: git-url
-        value: $(tt.params.git-repo-url)
-      - name: git-revision
-        value: $(tt.params.git-revision)
-      - name: IMAGE
-        value: image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/$(tt.params.git-repo-name)
+        - name: deployment-name
+          value: ia-analise-de-precos-app
+        - name: git-url
+          value: https://gitlab.vertigo-devops.com/vertigobr/devops/bootcamps/docker/ia-analise-de-precos.git
+        - name: git-revision
+          value: main
+        - name: DOCKERFILE
+          value: ./src/main/docker/Dockerfile.jvm
+        - name: IMAGE
+          value: image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/$(params.deployment-name):latest
       workspaces:
       - name: shared-workspace
         volumeClaimTemplate:
